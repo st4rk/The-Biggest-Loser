@@ -6,8 +6,11 @@ all: flawUS.sav flawEU.sav
 
 flawUS.sav flawEU.sav: payloadUS.bin payloadEU.bin
 	python inject_payload.py
-	CRCFix/CRCFix flawUS.sav
-	CRCFix/CRCFix flawEU.sav
+	
+	@# Since CRC length is 1 byte, there is no need to CRCFix it
+	@#CRCFix/CRCFix flawUS.sav
+	@#CRCFix/CRCFix flawEU.sav
+	
 	@rm -f payloadUS.bin
 	@rm -f payloadEU.bin
 
