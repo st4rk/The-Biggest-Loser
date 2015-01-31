@@ -3,7 +3,6 @@
 
 asm(".global _start");
 asm("_start:");
-/* Clear Registers */
 asm("mov r0, #0x0");
 asm("mov r1, #0x0");
 asm("mov r2, #0x0");
@@ -17,7 +16,7 @@ asm("mov r9, #0x0");
 asm("mov r10, #0x0");
 asm("mov r11, #0x0");
 asm("ldr pc, =main");
-
+ 
 const char fonts[] = { //Fonte 8x8 1BPP
     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0               //tile:0
     , 0x18, 0x18, 0x18, 0x18, 0x18, 0x0, 0x18, 0x0               //tile:1
@@ -117,14 +116,16 @@ const char fonts[] = { //Fonte 8x8 1BPP
     , 0x0, 0x10, 0x38, 0x6c, 0xc6, 0xc6, 0xfe, 0x0               //tile:95
 };
  
+ 
 void draw_pixel_rgb(int x, int y, u8 r, u8 g, u8 b) {
-    u32 v = ((256 * y) + x) * sizeof(u16);
-    *(u16 *)(0x06800000 + v) = RGB15(r, g, b);
+    u32 v = 256 * y + x;
+    *(VRAM_A + v) = RGB15(r, g, b);
 }
-
-void draw_string(int sx, int sy, char *str) {
+ 
+ 
+void draw_string(u16 *fb, int sx, int sy, char *str) {
     int i;
-    for (i = 0; i < 5; i++) {
+    for(i = 0; str[i]; i++) {
         int fntnum = (str[i] - 32) & 0xFF;
         int y;
         for (y = 0; y < 8; y++) {
@@ -136,7 +137,7 @@ void draw_string(int sx, int sy, char *str) {
             for(x = 0; x < 8; x++) {
                 if ((currbyte & mult) == mult) {
                     draw_pixel_rgb(sx + x, sy + y, 0xFF, 0xFF, 0xFF);
-                    //draw_pixel_rgb(sx + x, sy + y + 1, 0, 0, 0); //Sombra
+                    draw_pixel_rgb(sx + x, sy + y + 1, 0, 0, 0); //Sombra
                 }
                 mult /= 2;
             }
@@ -147,18 +148,58 @@ void draw_string(int sx, int sy, char *str) {
  
 int main(void) {   
     /* Enable Both Screen, and FrameBuffer mode */
-    REG_DISPCNT = MODE_FB0;
-    VRAM_CR = VRAM_ENABLE | VRAM_A_LCD;
-
+	
+	REG_DISPCNT = MODE_FB0;
+	VRAM_A_CR = VRAM_ENABLE | VRAM_A_LCD;
+	
     int i = 0;
-
-    while(i < 256 * 192 * sizeof(u16)) {
-        VRAM_A[i] = RGB15(15, 5, 31);
-	    i++;
-    }
-
-    draw_string(85, 85, "Flawwwww");
-
-    while(1);
+    u8 r = 0, g = 31, b = 0;
+    u8 random = 1;
+	
+	while (1) {
+        i = 0;
+ 
+        switch (random) {
+            case 1:
+                if (r != 31) {
+                    r++;
+                    g--;
+                } else {
+                    random = 2;
+                }
+            break;
+ 
+            case 2:
+                if (b != 31) {
+                    b++;
+                    g++;
+                    r--;
+                } else {
+                    random = 3;
+                }
+            break;
+ 
+            case 3:
+                if (b != 0) {
+                    b--;
+                } else {
+                    random = 1;
+                }
+            break;
+ 
+            default:
+ 
+            break;
+        }
+       
+        while(i < 0x18000) {
+            VRAM_A[i] = RGB15(r, g, b);
+            i++;
+        }
+		
+        draw_string(VRAM_A, 85, 85, "Flawwwww");
+		asm("swi 0x050000");
+	}
+ 
     return 0;
 }
