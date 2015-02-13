@@ -145,23 +145,20 @@ void draw_string(int sx, int sy, char *str) {
     }
 }
  
-int main() {   
+int main(void) {   
     /* Enable Both Screen, and FrameBuffer mode */
     REG_DISPCNT = MODE_FB0;
     VRAM_CR = VRAM_ENABLE | VRAM_A_LCD;
 
-    int i;
- 
-    while(1) {
-        i = 0;
+    int i = 0;
 
-         while(i < 0x18000) {
-            VRAM_A[i] = RGB15(15, 5, 31);
-            i++;
-        }
-		
-        draw_string(85, 85, "Flawwwww");
+    while(i < 256 * 192 * sizeof(u16)) {
+        VRAM_A[i] = RGB15(15, 5, 31);
+	    i++;
     }
- 
+
+    draw_string(85, 85, "Flawwwww");
+
+    while(1);
     return 0;
 }
