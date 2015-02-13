@@ -1,15 +1,25 @@
 from sys import argv
  
-binfile = "exploit.bin"
-savfile = "flaw.sav"
+binfileUS = "payloadUS.bin"
+binfileEU = "payloadEU.bin"
+savfileUS = "flawUS.sav"
+savfileEU = "flawEU.sav"
  
-bin = open(binfile, "r+b")
-sav = open(savfile, "r+b")
+binUS = open(binfileUS, "r+b")
+binEU = open(binfileEU, "r+b")
+savUS = open(savfileUS, "r+b")
+savEU = open(savfileEU, "r+b")
  
-bincontent = bin.read()
+bincontentUS = binUS.read()
+bincontentEU = binEU.read()
  
-sav.seek(0x108)
-sav.write(bincontent)
+savUS.seek(0x8C)
+savUS.write(bincontentUS)
+
+savEU.seek(0x8C)
+savEU.write(bincontentEU)
  
-bin.close()
-sav.close()
+binUS.close()
+binEU.close()
+savUS.close()
+savEU.close()
