@@ -11,12 +11,12 @@ flawUS.sav flawEU.sav: payloadUS.bin payloadEU.bin
 	@rm -f payloadUS.bin
 	@rm -f payloadEU.bin
 
-payloadUS.bin:
-	$(CC) -nostartfiles -nostdlib *.c -o payload.elf -Ttext=0x0211E364
+payloadUS.bin: *.c
+	$(CC) -nostartfiles -nostdlib -DARM9 -I$(LIBNDS)/include *.c -o payload.elf -O2 -Wall -Ttext=0x0211E364
 	$(OBJCOPY) -O binary payload.elf payloadUS.bin
 	@rm -f payload.elf
 
-payloadEU.bin:
-	$(CC) -nostartfiles -nostdlib *.c -o payload.elf -Ttext=0x0211E604
+payloadEU.bin: *.c
+	$(CC) -nostartfiles -nostdlib -DARM9 -I$(LIBNDS)/include *.c -o payload.elf -O2 -Wall -Ttext=0x0211E604
 	$(OBJCOPY) -O binary payload.elf payloadEU.bin
 	@rm -f payload.elf

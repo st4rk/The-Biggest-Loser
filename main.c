@@ -1,6 +1,5 @@
-typedef unsigned int   u32;
-typedef unsigned short u16;
-typedef unsigned char  u8;
+#include <nds/ndstypes.h>
+#include <nds/arm9/video.h>
 
 asm(".global _start");
 asm("_start:");
@@ -17,10 +16,8 @@ asm("mov r8, #0x0");
 asm("mov r9, #0x0");
 asm("mov r10, #0x0");
 asm("mov r11, #0x0");
-asm("ldr pc,=main");
+asm("ldr pc, =main");
 
-#define RGB15(r,g,b) ((r)|((g)<<5)|((b)<<10))
- 
 const char fonts[] = { //Fonte 8x8 1BPP
     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0               //tile:0
     , 0x18, 0x18, 0x18, 0x18, 0x18, 0x0, 0x18, 0x0               //tile:1
@@ -120,16 +117,12 @@ const char fonts[] = { //Fonte 8x8 1BPP
     , 0x0, 0x10, 0x38, 0x6c, 0xc6, 0xc6, 0xfe, 0x0               //tile:95
 };
  
- 
 void draw_pixel_rgb(int x, int y, u8 r, u8 g, u8 b) {
-   
-    u32 v = ((256 * y) + x) * 2;    
- 
-    *(u16*)(0x06800000 + v) = RGB15(r,g,b);
+    u32 v = ((256 * y) + x) * sizeof(u16);
+    *(u16 *)(0x06800000 + v) = RGB15(r, g, b);
 }
- 
- 
-void draw_string(int sx, int sy, unsigned char str[]) {
+
+void draw_string(int sx, int sy, char *str) {
     int i;
     for (i = 0; i < 5; i++) {
         int fntnum = (str[i] - 32) & 0xFF;
@@ -153,33 +146,22 @@ void draw_string(int sx, int sy, unsigned char str[]) {
 }
  
 int main() {   
-    /* UGly Code Start */
     /* Enable Both Screen, and FrameBuffer mode */
+    REG_DISPCNT = MODE_FB0;
+    VRAM_CR = VRAM_ENABLE | VRAM_A_LCD;
 
-    *(u32*)0x04000000 = 0x00020000;
-    *(u8*)0x04000240 = 0x80;
-
-
+    int i;
  
- 
-    int i = 0;
-    u8 r = 0, g = 31, b = 0;
-    u8 random = 1;
-
- 
-   while (1) {
+    while(1) {
         i = 0;
 
          while(i < 0x18000) {
-            *(u16*)(0x06800000 + i) = RGB15(15,5,31);
+            VRAM_A[i] = RGB15(15, 5, 31);
             i++;
         }
+		
         draw_string(85, 85, "Flawwwww");
-
-   }
+    }
  
-        asm("endless_loop: \
-                b endless_loop");
- 
-        return 0;
+    return 0;
 }
