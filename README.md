@@ -7,4 +7,4 @@ Runs in DSi mode if you use a real cartridge on a DSi or 3DS system, otherwise, 
 
 Both US and EU regions are supported.
 
-Read more [here](http://st4rk.net/2014/12/30/the-biggest-loser-exploit/).
+Read more [here](http://st4rk.net/hacking/the-biggest-loser-exploit/).
